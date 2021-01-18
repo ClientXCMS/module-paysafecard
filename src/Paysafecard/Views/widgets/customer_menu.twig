@@ -1,0 +1,44 @@
+<div class="col-md-6 col-sm-12">
+    <div class="card">
+        <div class="card-body">
+            <h4><i class="fas fa-ticket-alt mr-2"></i> Paysafecard </h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID MySQL</th>
+                            <th scope="col">Code</th>
+                            <th scope="col">Valeur</th>
+                            <th scope="col">État</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Validation</th>
+                            <th scope="col">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% if paysafecards is not empty %}
+                    {% set token = csrf_input() %}
+                        {% for paysafecard in paysafecards %}
+                        <tr>
+                            <td>{{ paysafecard.id }}</td>
+                            <td>{{ paysafecard.code}}</td>
+                            <td>{{ paysafecard.value }} {{ config('app.currency')}}</td>
+                            <td>{{ paysafecard.status | paysafecard_status | raw}}</td>
+                            <td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
+                            <td>{{ paysafecard.updatedAt ? paysafecard.updatedAt.format('d/y/Y H:i:s') : 'Pas encore vérifié' }}</td>
+                            <td>
+                                <a class="btn btn-info mr-2" href="{{ path('admin.account.edit', {id: paysafecard.accountId})}}"><i class="fa fa-user"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="7">Aucun enregistrement trouvé</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

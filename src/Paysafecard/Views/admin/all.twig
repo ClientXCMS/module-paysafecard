@@ -1,0 +1,64 @@
+{% extends "@admin/layout.twig" %}
+{% block title %}
+    Cartes paysafecard
+{% endblock %}
+{% block pagetitle %}Cartes Paysafecard{% endblock %}
+{% block pagesubtitle %}Administez les différentes cartes paysafecard.{% endblock %}
+
+{% block body %}
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex bd-highlight">
+            <div class="ml-auto p-2 bd-highlight">
+                <a href="https://www.paysafecard.com/fr-fr/demander-le-solde/" class="btn btn-primary" title="Vérifier une carte">Vérifier une carte</a>
+                <a href="{{ path('paysafecard.admin.index') }}" class="btn btn-info" title="Voir les cartes en attente">Voir les cartes en attente</a> 
+            </div>
+        </div>
+        <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">ID MySQL</th>
+                    <th scope="col">Code</th>
+                    <th scope="col">Valeur</th>
+                    <th scope="col">État</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Validation</th>
+                    <th scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if paysafecards is not empty %}
+            {% set token = csrf_input() %}
+                {% for paysafecard in paysafecards %}
+                    <tr>
+                    <td>{{ paysafecard.id }}</td>
+                    <td>{{ paysafecard.code}}</td>
+                    <td>{{ paysafecard.value }} {{ config('app.currency')}}</td>
+                    <td>{{ paysafecard.status | paysafecard_status | raw}}</td>
+                    <td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
+                    <td>{{ paysafecard.updatedAt ? paysafecard.updatedAt.format('d/y/Y H:i:s') : 'Pas encore vérifier' }}</td>
+                    <td>
+                        <a class="btn btn-info mr-2" href="{{ path('admin.account.edit', {id: paysafecard.accountId})}}"><i class="fa fa-user"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="7">Aucun enregistrement trouvé</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+        <div class="d-flex justify-content-center mt-4">
+            {% if query is defined %}
+                {{ paginate(paysafecards, routePrefix ~'.index', {'query':query}) }}
+            {% endif %}
+            {% if query is not defined %}
+                {{ paginate(paysafecards, routePrefix ~'.index') }}
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
