@@ -47,7 +47,7 @@
                                 {{ token | raw }}
                                 <button class="btn btn-success mr-2"><i class="fas fa-money-bill-wave"></i></button>
                             </form>
-                            <a class="btn btn-info mr-2" href="{{ path('admin.account.edit', {id: paysafecard.accountId})}}"><i class="fa fa-user"></i></a>
+                            <a class="btn btn-info mr-2" href="{{ path('account.admin.edit', {id: paysafecard.accountId})}}"><i class="fa fa-user"></i></a>
                             <form method="POST" action="{{ path('paysafecard.admin.refuse', {id: paysafecard.id}) }}">
                                 {{ token | raw }}
                                 <input type="hidden" name="_method" value="DELETE">

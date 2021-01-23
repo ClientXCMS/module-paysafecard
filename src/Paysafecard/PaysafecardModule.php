@@ -36,11 +36,12 @@ class PaysafecardModule extends Module
         unset($prefix);
         if ($container->has('admin.prefix')) {
             $prefix = $container->get('admin.prefix');
+
+            $router->get($prefix . '/paysafecard', PaysafecardActiveIndexAction::class, 'paysafecard.admin.index');
+            $router->get($prefix . '/paysafecards/all', AdminPaysafecardIndexAction::class, 'paysafecard.admin.all');
+            $PPrefix = 'paysafecard.admin';
+            $router->post($prefix . '/paysafecard/{id:\d+}', PaysafecardActiveIndexAction::class, $PPrefix .'.accept');
+            $router->delete($prefix . '/paysafecard/{id:\d+}', PaysafecardActiveIndexAction::class, $PPrefix .'.refuse');
         }
-        $router->get($prefix . '/paysafecard', PaysafecardActiveIndexAction::class, 'paysafecard.admin.index');
-        $router->get($prefix . '/paysafecards/all', AdminPaysafecardIndexAction::class, 'paysafecard.admin.all');
-        $PPrefix = 'paysafecard.admin';
-        $router->post($prefix . '/paysafecard/{id:\d+}', PaysafecardActiveIndexAction::class, $PPrefix .'.accept');
-        $router->delete($prefix . '/paysafecard/{id:\d+}', PaysafecardActiveIndexAction::class, $PPrefix .'.refuse');
     }
 }

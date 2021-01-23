@@ -2,12 +2,15 @@
 namespace App\Paysafecard\Actions;
 
 use App\Paysafecard\Database\PaysafecardTable;
+use App\Paysafecard\Entity\Paysafecard;
+use App\Paysafecard\Events\PaysafecardStoreEvent;
 use App\Paysafecard\PaysafecardModule;
 use ClientX\Actions\Action;
 use ClientX\Renderer\RendererInterface;
 use ClientX\Session\FlashService;
 use ClientX\Validator;
 use ClientX\Auth;
+use ClientX\Event\EventManager;
 use ClientX\Router;
 use ClientX\Session\SessionInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -26,6 +29,11 @@ class PaysafecardSubmitAction extends Action
     private $session;
 
     /**
+     * @var EventManager
+     */
+    private $manager;
+
+    /**
      * @param RendererInterface
      * @param PaysafecardTable
      * @param Auth
@@ -37,13 +45,15 @@ class PaysafecardSubmitAction extends Action
         PaysafecardTable $table,
         Auth $auth,
         Router $router,
-        SessionInterface $session
+        SessionInterface $session,
+        EventManager $manager
     ) {
         $this->session = $session;
         $this->renderer = $renderer;
         $this->table    = $table;
         $this->auth     = $auth;
         $this->router   = $router;
+        $this->manager  = $manager;
         $this->flash    = new FlashService($session);
     }
     /**
@@ -53,20 +63,27 @@ class PaysafecardSubmitAction extends Action
      */
     public function __invoke(ServerRequestInterface $request)
     {
-            $params = $request->getParsedBody();
-            $validator = $this->getValidator($params);
+        $params = $request->getParsedBody();
+        $validator = $this->getValidator($params);
         if ($validator->isValid()) {
-            $this->table->insert([
+            $id = $this->table->insert([
                 'code' => $params['code'],
                 'value' => $params['value'],
                 'account_id' => $this->getUser()->getId(),
             ]);
             $this->success('Pin sauvegardée ! En attente de confirmation...');
+            $paysafecard = new Paysafecard();
+            $paysafecard->setId($id);
+            $paysafecard->setCode($params['code']);
+            $paysafecard->setValue($params['value']);
+            $paysafecard->setAccountId($this->getUser()->getId());
+            $paysafecard->setStatus(0);
+            $this->manager->trigger(new PaysafecardStoreEvent($paysafecard));
             return $this->redirectToRoute('paysafecard');
         }
-            $errors = $validator->getErrors();
-            $this->session->set(PaysafecardModule::PAYSAFECARD_KEY, $errors);
-            return $this->redirectToRoute('paysafecard');
+        $errors = $validator->getErrors();
+        $this->session->set(PaysafecardModule::PAYSAFECARD_KEY, $errors);
+        return $this->redirectToRoute('paysafecard');
     }
     /**
      * @param array
