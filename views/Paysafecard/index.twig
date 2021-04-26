@@ -1,17 +1,17 @@
 {% extends "layout.twig" %}
 
-{% block title 'Paysafecard' %}
+{% block title trans("your_paysafecard") %}
 
 {% block body %}
 
 <section class="forms">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-9 col-sm-12">
+            <div class="col-md-12 col-xl-9 col-sm-12">
                 <div class="card">
                     <div class="card-header with-border">
                         <h3 class="card-title">
-                            Vos demandes
+                            {{ trans("your_paysafecard")}}
                         </h3>
                     </div>
                     <div class="card-body">
@@ -20,27 +20,37 @@
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Code</th>
-                                        <th>Valeur</th>
-                                        <th>État</th>
-                                        <th>Date</th>
+                                        <th>{{ trans("paysafecard.form.pin")}}</th>
+                                        <th>{{ trans("paysafecard.form.value")}}</th>
+                                        <th>{{ trans("paysafecard.form.giveback")}}</th>
+                                        <th>{{ trans("state2")}}</th>
+                                        <th>{{ trans("date")}}</th>
+                                        <th>{{ trans("action")}}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% if paysafecards is not empty %}
+                                    {% set token = csrf_input() %}
                                         {% for paysafecard in paysafecards %}
                                             <tr>
                                                 <td>{{ paysafecard.id }}</td>
-                                                <td>{{ paysafecard.code}}</td>
-                                                <td>{{ paysafecard.value }}
-                                                    {{ config('app.currency')}}</td>
-                                                <td>{{ paysafecard.status | paysafecard_status | raw}}</td>
+                                                <td>{{ paysafecard.pin}}</td>
+                                                <td>{{ paysafecard.value }}{{ config('app.currency')}}</td>
+                                                <td>{{ paysafecard.giveback }}{{ config('app.currency')}}</td>
+                                                <td>{{ paysafecard.state | paysafecard_status | raw}}</td>
                                                 <td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
+                                                <td>
+                                                    <form method="POST" action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
+                                                        <input value="DELETE" name="_method" type="hidden">
+                                                        {{ token | raw}}
+                                                        <button class="btn btn-info">{{ trans("paysafecard.btn") }}</button>
+                                                    </form>
+                                                </td>
                                             </tr>
                                         {% endfor %}
                                     {% else %}
                                         <tr>
-                                            <td colspan="5">Aucun enregistrement trouvé</td>
+                                            <td colspan="6">{{ trans("no_record")}}</td>
                                         </tr>
                                     {% endif %}
                                 </tbody>
@@ -50,25 +60,25 @@
                 </div>
             </div>
             </div>
-            <div class="col-md-3 col-sm-12">
+            <div class="col-md-12 col-xl-3 col-sm-12">
                 <div class="card card-default color-palette-card">
                     <div class="card-header with-border">
                         <h3 class="card-title">
                             
-                            Nouvelle demande</h3>
+                            {{ trans("paysafecard.new")}}</h3>
                     </div>
                     <div class="card-body">
                         <form method="POST" action="{{ path('paysafecard.submit')}}">
                             {{ csrf_input() }}
                             <div class="row">
                                 <div class="col-sm-12 col-md-12">
-                                    {{ field('code', paysafecard.code, "Code PIN")}}
+                                    {{ field('pin', paysafecard.pin, trans("paysafecard.form.pin"))}}
                                 </div>
                                 <div class="col-sm-12 col-md-12">
-                                    {{ field('value', paysafecard.value, "Valeur de la carte", {options: values})}}
+                                    {{ field('value', paysafecard.value, trans("paysafecard.form.value"), {options: values})}}
                                     <!-- Héhé, On connait déjà tout cette technique :p-->
                                     <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-pen"></i> Soumettre
+                                        <i class="fas fa-pen"></i> {{ trans("paysafecard.form.submit")}}
                                     </button>
                                 </div>
                             </div>

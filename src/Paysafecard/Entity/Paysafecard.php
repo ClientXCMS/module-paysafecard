@@ -2,34 +2,26 @@
 namespace App\Paysafecard\Entity;
 
 use ClientX\Entity\Timestamp;
+use DateTime;
 
 class Paysafecard
 {
 
-    /**
-     * @var int
-     */
-    private $id;
-    /**
-     * @var string
-     */
-    private $code;
-
-    /**
-     * @var int
-     */
-    private $value;
-
-    /**
-     * @var int
-     */
-    private $accountId;
-
-    /**
-     * @var int
-     */
-    private $status;
     
+    private int $id;
+    private int $value;
+    private string $pin;
+    private ?int $adminId;
+    private int $userId;
+    private string $state = self::PENDING;
+    private ?string $lastState;
+    private ?\DateTime $verifiedAt = null;
+
+    const PENDING = "Pending";
+    const ACCEPTED = "Accepted";
+    const REFUSED = "Refused";
+    const CANCELLED = "Cancelled";
+
     use Timestamp;
     
     public function getId():int
@@ -40,18 +32,9 @@ class Paysafecard
     public function setId(int $id)
     {
         $this->id = $id;
+        return $this;
     }
 
-    public function getCode():string
-    {
-        return $this->code;
-    }
-
-    public function setCode(string $code)
-    {
-        $this->code = $code;
-    }
-    
     public function getValue():int
     {
         return $this->value;
@@ -60,25 +43,76 @@ class Paysafecard
     public function setValue(int $value)
     {
         $this->value = $value;
+        return $this;
+    }
+    public function getUserId():int
+    {
+        return $this->userId;
+    }
+    public function setUserId(int $userId)
+    {
+        $this->userId = $userId;
+
+        return $this;
+    }
+    public function getPin()
+    {
+        return $this->pin;
+    }
+    public function setPin(int $pin)
+    {
+        $this->pin = $pin;
+
+        return $this;
     }
 
-    public function getAccountId():int
+    public function getState():string
     {
-        return $this->accountId;
-    }
-    public function setAccountId(int $accountId)
-    {
-        $this->accountId = $accountId;
+        return $this->state;
     }
 
-    public function getStatus():int
+ 
+    public function setState($state)
     {
-        return $this->status;
+        if ($this->state){
+            $this->lastState = $this->state;
+        }
+        $this->state = $state;
+
+        return $this;
     }
 
-    public function setStatus(int $status)
+
+    public function getLastState():?string
     {
-        $this->status = $status;
+        return $this->lastState;
+    }
+
+    public function giveback(){
+        return  $this->value;
+    }
+
+ 
+    public function getAdminId():?int
+    {
+        return $this->adminId;
+    }
+    public function setAdminId($adminId)
+    {
+        $this->adminId = $adminId;
+
+        return $this;
+    }
+    public function getVerifiedAt():?\DateTime
+    {
+        return $this->verifiedAt;
+    }
+
+    public function setVerifiedAt($verifiedAt)
+    {
+        if ($verifiedAt != null){
+            $this->verifiedAt = new DateTime($verifiedAt);
+        }
 
         return $this;
     }

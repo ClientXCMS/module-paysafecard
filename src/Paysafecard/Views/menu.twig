@@ -1,0 +1,12 @@
+<li class="nav-item">
+    <a href="{{ path('paysafecard.admin.index') }}" class="nav-link {{ is_subpath('paysafecard.admin.index') ? 'active' }}">
+        <i class="nav-icon fa fa fa-credit-card"></i>
+        <p>
+            Paysafecard
+            
+            {% if count != 0 %}
+            <span class="right badge badge-danger">{{ count }}</span>
+            {% endif %}
+        </p>
+    </a>
+</li>

@@ -15,26 +15,21 @@ class PaysafecardCustomerItem implements NavigationItemInterface
      */
     private $table;
 
-    /**
-     * @var RendererInterface
-     */
-    private $renderer;
 
     /**
      * @var User
      */
     private $user;
 
-    public function __construct(RendererInterface $renderer, PaysafecardTable $table)
+    public function __construct(PaysafecardTable $table)
     {
-        $this->renderer = $renderer;
         $this->table    = $table;
     }
 
-    public function render(): string
+    public function render(RendererInterface $renderer): string
     {
         $tickets = $this->table->findForUser($this->user->getId());
-        return $this->renderer->render('@paysafecard_admin/widgets/customer_menu', compact('tickets'));
+        return $renderer->render('@paysafecard_admin/customer_menu', compact('tickets'));
     }
 
     public function getPosition(): int

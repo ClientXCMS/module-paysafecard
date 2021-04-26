@@ -1,12 +1,18 @@
 <?php
 namespace App\Paysafecard\Extensions;
 
+use App\Paysafecard\Entity\Paysafecard;
+use ClientX\Translator\Translater;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 
 class PaysafecardTwigExtension extends AbstractExtension
 {
-
+    private Translater $translater;
+    public function __construct(Translater $translater)
+    {
+        $this->translater = $translater;
+    }
     public function getFilters()
     {
         return [
@@ -15,28 +21,29 @@ class PaysafecardTwigExtension extends AbstractExtension
     }
 
 
-    public function getStatus(int $status)
+    public function getStatus(string $status)
     {
         $class = null;
-        $title = null;
 
         switch ($status) {
-            case 0:
+            case Paysafecard::PENDING:
                 $class = "warning";
-                $title = "En attente";
                 break;
-            case 1:
+            case Paysafecard::ACCEPTED:
+
                 $class = "success";
-                $title = "Acceptée";
                 break;
-            case 2:
+            case Paysafecard::REFUSED:
+
                 $class = "danger";
-                $title = "Refusée";
+                break;
+            case Paysafecard::CANCELLED:
+
+                $class = "primary";
                 break;
             default:
                 $class = "danger";
-                $title = "ERROR";
         }
-        return  sprintf("<span class='badge badge-%s'>%s</span>", $class, $title);
+        return  sprintf("<span class='badge badge-%s'>%s</span>", $class, $this->translater->trans("paysafecard.states." . $status));
     }
 }

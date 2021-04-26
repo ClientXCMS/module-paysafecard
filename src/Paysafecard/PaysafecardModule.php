@@ -3,6 +3,7 @@ namespace App\Paysafecard;
 
 use App\Paysafecard\Actions\Admin\PaysafecardActiveIndexAction;
 use App\Paysafecard\Actions\Admin\PaysafecardIndexAction as AdminPaysafecardIndexAction;
+use App\Paysafecard\Actions\PaysafecardCancelAction;
 use App\Paysafecard\Actions\PaysafecardIndexAction;
 use App\Paysafecard\Actions\PaysafecardSubmitAction;
 use ClientX\Module;
@@ -16,31 +17,24 @@ class PaysafecardModule extends Module
 
     const MIGRATIONS = __DIR__ . "/db/migrations";
     const DEFINITIONS = __DIR__ . '/config.php';
-    const PAYSAFECARD_KEY = 'errors_paysafecard';
-    const VALUES = [
-        10   => "10€ (Vous donne 10 EUROS)",
-        25   => "25€ (Vous donne 25 EUROS)",
-        50   => "50€ (Vous donne 50 EUROS)",
-        100  => "100€ (Vous donne 100 EUROS)",
+    const TRANSLATIONS = [
+        "fr_FR" => __DIR__ ."/trans/fr.php",
+        "en_GB" => __DIR__ ."/trans/en.php",
     ];
 
-    public function __construct(ContainerInterface $container, ThemeInterface $theme)
+    public function __construct(ContainerInterface $container, ThemeInterface $theme, RendererInterface $renderer, Router $router)
     {
-        $container->get(RendererInterface::class)->addPath('paysafecard', $theme->getViewsPath() . '/Paysafecard');
-        $container->get(RendererInterface::class)->addPath('paysafecard_admin', __DIR__ . '/Views');
-        /** @var Router */
-        $router = $container->get(Router::class);
-        $prefix = $container->get('clientarea.prefix');
-        $router->get($prefix . '/paysafecard', PaysafecardIndexAction::class, 'paysafecard');
-        $router->post($prefix . '/paysafecard/submit', PaysafecardSubmitAction::class, 'paysafecard.submit');
-        unset($prefix);
+        $renderer->addPath('paysafecard', $theme->getViewsPath() . '/Paysafecard');
+        $router->group($container->get('clientarea.prefix') . '/paysafecard', 'paysafecard')
+            ->get('', PaysafecardIndexAction::class, 'index')
+            ->delete('/[i:id]/cancel', PaysafecardCancelAction::class, 'cancel')
+            ->post('/submit', PaysafecardSubmitAction::class, 'submit');
         if ($container->has('admin.prefix')) {
-            $prefix = $container->get('admin.prefix');
+            $renderer->addPath('paysafecard_admin', __DIR__ . '/Views');
+            $router->group($container->get('admin.prefix') . '/paysafecard', 'paysafecard.admin')
+                ->get('', AdminPaysafecardIndexAction::class, 'index')
+                ->post('/[i:id]', PaysafecardActiveIndexAction::class, 'accept')
+                ->delete('/[i:id]', PaysafecardActiveIndexAction::class, 'refuse');
         }
-        $router->get($prefix . '/paysafecard', PaysafecardActiveIndexAction::class, 'paysafecard.admin.index');
-        $router->get($prefix . '/paysafecards/all', AdminPaysafecardIndexAction::class, 'paysafecard.admin.all');
-        $PPrefix = 'paysafecard.admin';
-        $router->post($prefix . '/paysafecard/{id:\d+}', PaysafecardActiveIndexAction::class, $PPrefix .'.accept');
-        $router->delete($prefix . '/paysafecard/{id:\d+}', PaysafecardActiveIndexAction::class, $PPrefix .'.refuse');
     }
 }

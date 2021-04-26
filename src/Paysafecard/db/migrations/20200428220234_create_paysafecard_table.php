@@ -1,5 +1,6 @@
 <?php
 
+use App\Paysafecard\Entity\Paysafecard;
 use Phinx\Migration\AbstractMigration;
 
 class CreatePaysafecardTable extends AbstractMigration
@@ -7,12 +8,15 @@ class CreatePaysafecardTable extends AbstractMigration
     public function change()
     {
         $this->table('paysafecards')
-            ->addColumn('code', 'string', ['limit' => 16])
+            ->addColumn('pin', 'string', ['limit' => 16])
             ->addColumn('value', 'integer')
-            ->addColumn('account_id', 'integer')
-            ->addColumn('status', 'integer', ['default' => 0])
+            ->addColumn('user_id', 'integer')
+            ->addColumn('state', 'string', ['default' => Paysafecard::PENDING])
+            ->addColumn('admin_id', 'integer', ['null' => true])
+            ->addColumn('verified_at', 'datetime', ['null' => true])
             ->addTimestamps()
-            ->addForeignKey('account_id', 'users', ['id'], ['delete' => 'CASCADE'])
+            ->addForeignKey('user_id', 'users', ['id'], ['delete' => 'CASCADE'])
+            ->addForeignKey('admin_id', 'admins', ['id'], ['delete' => 'CASCADE'])
             ->create();
     }
 }

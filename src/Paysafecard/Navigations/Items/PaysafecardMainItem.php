@@ -7,14 +7,9 @@ use ClientX\Renderer\RendererInterface;
 
 class PaysafecardMainItem implements NavigationItemInterface
 {
-    
-    public function __construct(RendererInterface $renderer)
+    public function render(RendererInterface $renderer):string
     {
-        $this->renderer = $renderer;
-    }
-    public function render(User $user = null):string
-    {
-        return $this->renderer->render("@paysafecard/menu_main");
+        return $renderer->render("@paysafecard/menu_main");
     }
 
     public function getPosition():int

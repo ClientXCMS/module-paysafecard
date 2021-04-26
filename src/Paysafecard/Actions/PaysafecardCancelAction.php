@@ -7,7 +7,7 @@ use ClientX\Actions\Action;
 use ClientX\Router;
 use Psr\Http\Message\ServerRequestInterface;
 
-class PaysafecardSubmitAction extends Action
+class PaysafecardCancelAction extends Action
 {
     private PaysafecardService $paysafecard;
     public function __construct(
@@ -19,11 +19,7 @@ class PaysafecardSubmitAction extends Action
     }
     public function __invoke(ServerRequestInterface $request)
     {
-            $params = $request->getParsedBody();
-            $validator = $this->paysafecard->validate($params);
-            if ($validator->isValid()) {
-                $this->paysafecard->save($params);
-            }
-        return $this->redirectToRoute('paysafecard.index');
+        $id = $request->getAttribute('id');
+        return $this->paysafecard->cancel($id);
     }
 }

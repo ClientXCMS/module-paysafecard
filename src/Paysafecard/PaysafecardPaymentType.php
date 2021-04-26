@@ -8,7 +8,7 @@ class PaysafecardPaymentType implements PaymentTypeInterface
 
     public function getName(): string
     {
-        return "paysafecard";
+        return "paysafecardmanual";
     }
     public function getTitle(): ?string
     {
@@ -18,11 +18,6 @@ class PaysafecardPaymentType implements PaymentTypeInterface
     public function getManager(): string
     {
         return '';
-    }
-
-    public function render(): string
-    {
-        return "";
     }
 
     public function getLogPath(): string
