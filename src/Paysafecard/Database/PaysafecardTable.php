@@ -42,17 +42,22 @@ class PaysafecardTable extends Table
             ->count();
     }
 
-    
+        
     public function makeQueryForAdmin(?array $search = null, $order = "desc"): Query
     {
-        
         $sql2 = 'CONCAT(u.firstname," ",u.lastname) as username';
-        $query =  $this->makeQueryForAdmin($search, $order)
-        ->order($this->order)
+		
+        $where = "";
+        if (isset($search['s'])) {
+            $where .= "{$this->element} LIKE '%" . trim($search['s']) . "%'";
+        }
+        $query = $this->makeQuery();
+        if (!empty($where)) {
+            $query->where($where);
+        }
+		$query
         ->select($sql2, 'u.id as userId', 'p.*')
         ->join("users u", "u.id = p.user_id AND p.user_id IS NOT NULL");
-        $query->order = [$this->order];
-
         return $query;
     }
 }
