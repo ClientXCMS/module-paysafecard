@@ -1,6 +1,6 @@
 ## Module Paysafecard (sans API)
 
-![Logo de Paysafecard](https://www.sitesdeparissportifs.com/assets/images/paysafecard-logo.png "Logo de Paysafecard")
+![Logo de Paysafecard](https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Paysafecard_logo.svg/799px-Paysafecard_logo.svg.png "Logo de Paysafecard")
 
 Toute l'équipe de CLIENTXCMS vous remercie pour cette achat. Nous espérons que celui la vous plaisent.
 
