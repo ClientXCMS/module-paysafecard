@@ -45,6 +45,7 @@ class PaysafecardTable extends Table
             ->count();
     }
 
+<<<<<<< HEAD
 
     public function makeQueryForAdmin(?array $search = null, $order = "desc"): Query
     {
@@ -56,6 +57,24 @@ class PaysafecardTable extends Table
             ->join("users u", "u.id = p.user_id AND p.user_id IS NOT NULL");
         $query->order = [$this->order];
 
+=======
+        
+    public function makeQueryForAdmin(?array $search = null, $order = "desc"): Query
+    {
+        $sql2 = 'CONCAT(u.firstname," ",u.lastname) as username';
+		
+        $where = "";
+        if (isset($search['s'])) {
+            $where .= "{$this->element} LIKE '%" . trim($search['s']) . "%'";
+        }
+        $query = $this->makeQuery();
+        if (!empty($where)) {
+            $query->where($where);
+        }
+		$query
+        ->select($sql2, 'u.id as userId', 'p.*')
+        ->join("users u", "u.id = p.user_id AND p.user_id IS NOT NULL");
+>>>>>>> 79d4bd7567d359f1b5870082663d09fff908b805
         return $query;
     }
 }
