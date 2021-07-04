@@ -14,15 +14,17 @@ class PaysafecardIndexAction extends Action
 
     private PaysafecardTable $table;
     private PaysafecardService $paysafecards;
+
     public function __construct(
         PaysafecardTable $table,
         RendererInterface $renderer,
         Router $router,
         PaysafecardService $paysafecards
-    ) {
-        $this->table     = $table;
-        $this->renderer  = $renderer;
-        $this->router    = $router;
+    )
+    {
+        $this->table = $table;
+        $this->renderer = $renderer;
+        $this->router = $router;
         $this->paysafecards = $paysafecards;
     }
 
@@ -36,9 +38,8 @@ class PaysafecardIndexAction extends Action
                 $query = $params['s'];
             }
             $paysafecards = $this->table->makeQueryForAdmin($params)->paginate(12, $request->getQueryParams()['p'] ?? 1);
-            return $this->renderer->render("@paysafecard_admin/index", compact('paysafecards'));
-        }
-        elseif ($request->getMethod() === 'DELETE') {
+            return $this->render("@paysafecard_admin/index", compact('paysafecards'));
+        } elseif ($request->getMethod() === 'DELETE') {
             $this->paysafecards->refuse($request->getAttribute('id'));
         } elseif ($request->getMethod() === 'POST') {
             $this->paysafecards->accept($request->getAttribute('id'));

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Paysafecard\Database;
 
 use App\Paysafecard\Entity\Paysafecard;
@@ -9,8 +10,9 @@ class PaysafecardTable extends Table
 {
 
     protected $entity = Paysafecard::class;
-    protected $table  = "paysafecards";
+    protected $table = "paysafecards";
     protected $element = "pin";
+    protected $order = "state DESC";
 
     public function create(Paysafecard $paysafecard)
     {
@@ -22,7 +24,8 @@ class PaysafecardTable extends Table
         ]);
     }
 
-    public function updateState(int $id, string $state){
+    public function updateState(int $id, string $state)
+    {
         return $this->update($id, compact('state'));
     }
 
@@ -42,15 +45,15 @@ class PaysafecardTable extends Table
             ->count();
     }
 
-    
+
     public function makeQueryForAdmin(?array $search = null, $order = "desc"): Query
     {
-        
+
         $sql2 = 'CONCAT(u.firstname," ",u.lastname) as username';
-        $query =  $this->makeQueryForAdmin($search, $order)
-        ->order($this->order)
-        ->select($sql2, 'u.id as userId', 'p.*')
-        ->join("users u", "u.id = p.user_id AND p.user_id IS NOT NULL");
+        $query = parent::makeQueryForAdmin($search, $order)
+            ->order($this->order)
+            ->select($sql2, 'u.id as userId', 'p.*')
+            ->join("users u", "u.id = p.user_id AND p.user_id IS NOT NULL");
         $query->order = [$this->order];
 
         return $query;

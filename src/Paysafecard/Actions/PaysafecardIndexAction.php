@@ -13,6 +13,8 @@ use Psr\Http\Message\ServerRequestInterface;
 class PaysafecardIndexAction extends Action
 {
     private PaysafecardTable $table;
+    private SessionInterface $session;
+
     public function __construct(
         RendererInterface $renderer,
         PaysafecardTable $table,
@@ -20,11 +22,11 @@ class PaysafecardIndexAction extends Action
         SessionInterface $session
     ) {
         $this->renderer = $renderer;
-        $this->auth = $auth;
+        $this->auth     = $auth;
         $this->table    = $table;
-        $this->session = $session;
+        $this->session  = $session;
     }
-    public function __invoke(ServerRequestInterface $request)
+    public function __invoke(ServerRequestInterface $request):string
     {
         $errors = $this->session->get(PaysafecardService::SESSION_KEY);
         $errors = $this->session->delete(PaysafecardService::SESSION_KEY);
