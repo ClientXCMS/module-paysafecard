@@ -33,8 +33,8 @@ class PaysafecardModule extends Module
             $renderer->addPath('paysafecard_admin', __DIR__ . '/Views');
             $router->group($container->get('admin.prefix') . '/paysafecard', 'paysafecard.admin')
                 ->get('', AdminPaysafecardIndexAction::class, 'index')
-                ->post('/[i:id]', PaysafecardIndexAction::class, 'accept')
-                ->delete('/[i:id]', PaysafecardIndexAction::class, 'refuse');
+                ->post('/[i:id]', AdminPaysafecardIndexAction::class, 'accept')
+                ->delete('/[i:id]', AdminPaysafecardIndexAction::class, 'refuse');
         }
     }
 }
