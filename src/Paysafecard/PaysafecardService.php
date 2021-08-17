@@ -105,7 +105,7 @@ class PaysafecardService
             /** @var User */
             $user = $this->user->find($paysafecard->getUserId());
             $user->addFund($paysafecard->giveback($this->getTax()));
-            $paysafecard->setAdminId($this->adminAuth->getUser());
+            $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
             $paysafecard->setVerifiedAt('now');
             $this->paysafecard->saveAdmin($paysafecard);
         } catch (NoRecordException $e) {}
@@ -120,10 +120,10 @@ class PaysafecardService
         $paysafecard->setState(Paysafecard::REFUSED);
         $this->setState($paysafecard);
         $this->success($this->trans("paysafecard.refuse"));
-        $paysafecard->setAdminId($this->adminAuth->getUser());
+        $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
         $paysafecard->setVerifiedAt('now');
         $this->paysafecard->saveAdmin($paysafecard);
-        return $this->redirectToRoute('admin.paysafecard.ard');
+        return $this->redirectToRoute('admin.paysafecard.index');
     }
     public function cancel(int $id)
     {
@@ -135,7 +135,10 @@ class PaysafecardService
         }
         $this->setState($paysafecard);
         $this->success($this->trans("paysafecard.cancel"));
-        return $this->redirectToRoute('paysafecard.index');
+        if ($this->adminAuth->getUser() === null){
+            return $this->redirectToRoute('paysafecard.index');
+        }
+        return $this->redirectToRoute('admin.paysafecard.index');
     }
     public function validate(array $params)
     {
