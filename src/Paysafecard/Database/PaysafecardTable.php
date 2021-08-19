@@ -17,7 +17,7 @@ class PaysafecardTable extends Table
     public function create(Paysafecard $paysafecard)
     {
         return $this->insert([
-            'pin' => $paysafecard->getPin(),
+            'pin' => str_replace(" ", "", $paysafecard->getPin()),
             'value' => $paysafecard->getValue(),
             'user_id' => $paysafecard->getUserId(),
             'state' => $paysafecard->getState()
@@ -48,7 +48,7 @@ class PaysafecardTable extends Table
     public function makeQueryForAdmin(?array $search = null, $order = "desc"): Query
     {
         $sql2 = 'CONCAT(u.firstname," ",u.lastname) as username';
-		
+
         $where = "";
         if (isset($search['s'])) {
             $where .= "{$this->element} LIKE '%" . trim($search['s']) . "%'";
@@ -57,9 +57,9 @@ class PaysafecardTable extends Table
         if (!empty($where)) {
             $query->where($where);
         }
-		$query
-        ->select($sql2, 'u.id as userId', 'p.*')
-        ->join("users u", "u.id = p.user_id AND p.user_id IS NOT NULL");
+        $query
+            ->select($sql2, 'u.id as userId', 'p.*')
+            ->join("users u", "u.id = p.user_id AND p.user_id IS NOT NULL");
         return $query;
     }
 }

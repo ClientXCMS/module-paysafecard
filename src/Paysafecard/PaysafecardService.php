@@ -3,6 +3,7 @@
 namespace App\Paysafecard;
 
 use App\Account\User;
+use App\Admin\Database\SettingTable;
 use App\Admin\DatabaseAdminAuth;
 use App\Auth\Database\UserTable;
 use App\Paysafecard\Database\PaysafecardTable;
@@ -39,8 +40,9 @@ class PaysafecardService
     use TranslaterTrait;
     use RouterTrait;
     use AuthTrait;
+
     const SESSION_KEY = "_paysafecard_errors";
-    const VALUES = [ 10 => 10,25 =>  25,50 =>  50, 100 => 100];
+    const VALUES = [10 => 10, 25 => 25, 50 => 50, 100 => 100];
 
     public function __construct(
         PaysafecardTable $paysafecard,
@@ -50,8 +52,10 @@ class PaysafecardService
         Router $router,
         Translater $translater,
         Auth $auth,
-        DatabaseAdminAuth $adminAuth
-    ) {
+        DatabaseAdminAuth $adminAuth,
+        SettingTable $table
+    )
+    {
         $this->paysafecard = $paysafecard;
         $this->user = $user;
         $this->adminAuth = $adminAuth;
@@ -61,6 +65,7 @@ class PaysafecardService
         $this->auth = $auth;
         $this->router = $router;
         $this->event = $event;
+        $this->tax = $table->findSetting("tax_paysafecardmanual", 0);
     }
 
     public function setState(Paysafecard $paysafecard)
@@ -105,10 +110,11 @@ class PaysafecardService
             /** @var User */
             $user = $this->user->find($paysafecard->getUserId());
             $user->addFund($paysafecard->giveback($this->getTax()));
-            $paysafecard->setAdminId($this->adminAuth->getUser());
+            $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
             $paysafecard->setVerifiedAt('now');
             $this->paysafecard->saveAdmin($paysafecard);
-        } catch (NoRecordException $e) {}
+        } catch (NoRecordException $e) {
+        }
         return $this->redirectToRoute('admin.paysafecard.index');
     }
 
@@ -120,26 +126,31 @@ class PaysafecardService
         $paysafecard->setState(Paysafecard::REFUSED);
         $this->setState($paysafecard);
         $this->success($this->trans("paysafecard.refuse"));
-        $paysafecard->setAdminId($this->adminAuth->getUser());
+        $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
         $paysafecard->setVerifiedAt('now');
         $this->paysafecard->saveAdmin($paysafecard);
-        return $this->redirectToRoute('admin.paysafecard.ard');
+        return $this->redirectToRoute('admin.paysafecard.index');
     }
+
     public function cancel(int $id)
     {
         /** @var Paysafecard */
         $paysafecard = $this->paysafecard->find($id);
         $paysafecard->setState(Paysafecard::CANCELLED);
-        if ($paysafecard->getUserId() != $this->getUserId() && $this->adminAuth->getUser() === null){
+        if ($paysafecard->getUserId() != $this->getUserId() && $this->adminAuth->getUser() === null) {
             return new Response(404);
         }
         $this->setState($paysafecard);
         $this->success($this->trans("paysafecard.cancel"));
-        return $this->redirectToRoute('paysafecard.index');
+        if ($this->adminAuth->getUser() === null) {
+            return $this->redirectToRoute('paysafecard.index');
+        }
+        return $this->redirectToRoute('admin.paysafecard.index');
     }
+
     public function validate(array $params)
     {
-        $validator =  (new Validator($params))
+        $validator = (new Validator($params))
             ->notEmpty('pin', 'value')
             ->length('pin', 16, 16)
             ->numeric('pin')
@@ -152,6 +163,6 @@ class PaysafecardService
 
     private function getTax(): int
     {
-        return 20;
+        return $this->tax;
     }
 }
