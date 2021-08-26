@@ -22,7 +22,7 @@ class PaysafecardSubmitAction extends Action
             $params = $request->getParsedBody();
             $validator = $this->paysafecard->validate($params);
             if ($validator->isValid()) {
-                $this->paysafecard->save($params);
+                return $this->paysafecard->save($params);
             }
         return $this->redirectToRoute('paysafecard.index');
     }

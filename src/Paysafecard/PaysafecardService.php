@@ -13,6 +13,10 @@ use App\Paysafecard\Events\PaysafecardCancelledEvent;
 use App\Paysafecard\Events\PaysafecardRefusedEvent;
 use App\Paysafecard\Events\PaysafecardStoredEvent;
 use App\Paysafecard\Events\PaysafecardUpdatedEvent;
+use App\Shop\Entity\Transaction;
+use App\Shop\Entity\TransactionItem;
+use App\Shop\Event\Transactions\TransactionItemStateChanged;
+use App\Shop\Services\TransactionService;
 use ClientX\Actions\Traits\AuthTrait;
 use ClientX\Actions\Traits\EventTrait;
 use ClientX\Actions\Traits\FlashTrait;
@@ -27,6 +31,7 @@ use ClientX\Session\SessionInterface;
 use ClientX\Translator\Translater;
 use ClientX\Validator;
 use GuzzleHttp\Psr7\Response;
+use function ClientX\request;
 
 class PaysafecardService
 {
@@ -43,6 +48,9 @@ class PaysafecardService
 
     const SESSION_KEY = "_paysafecard_errors";
     const VALUES = [10 => 10, 25 => 25, 50 => 50, 100 => 100];
+    private SettingTable $table;
+    private TransactionService $service;
+    private int $tax;
 
     public function __construct(
         PaysafecardTable $paysafecard,
@@ -53,7 +61,8 @@ class PaysafecardService
         Translater $translater,
         Auth $auth,
         DatabaseAdminAuth $adminAuth,
-        SettingTable $table
+        SettingTable $table,
+        TransactionService $service
     )
     {
         $this->paysafecard = $paysafecard;
@@ -66,6 +75,8 @@ class PaysafecardService
         $this->router = $router;
         $this->event = $event;
         $this->tax = $table->findSetting("tax_paysafecardmanual", 0);
+        $this->table = $table;
+        $this->service = $service;
     }
 
     public function setState(Paysafecard $paysafecard)
@@ -90,12 +101,29 @@ class PaysafecardService
         $paysafecard->setPin($params['pin'])
             ->setValue($params['value'])
             ->setUserId($this->getUserId());
+        $paysafecard->tax = $this->tax;
         $id = $this->paysafecard->create($paysafecard);
         $paysafecard->setId($id);
+        $transaction = new Transaction();
+        $item = new TransactionItem();
+        $item->setOrderable($paysafecard);
+        $item->typeId = $id;
+        $item->setName($paysafecard->getName());
+        $item->setPrice($paysafecard->giveback($this->tax));
+        $item->setVat($this->tax);
+        $transaction->setCurrency("EUR")
+            ->setUser($this->getUser())
+            ->setPrice($paysafecard->giveback($this->tax))
+            ->setUserId($this->getUserId())
+            ->setTransactionId($paysafecard->getPin())
+            ->setPaymentType("paysafecardmanual")
+            ->setItems([$item]);
+        $transaction = $this->service->getTable()->insertTransaction($transaction);
+        $paysafecard->setTransactionId($transaction);
+        $this->paysafecard->update($paysafecard->getId(), ['transaction_id' => $transaction]);
         $this->trigger(new PaysafecardStoredEvent($paysafecard));
         $this->success($this->trans("paysafecard.success"), ['%wallet%' => $paysafecard->giveback($this->getTax())]);
         return $this->redirectToRoute('paysafecard.index');
-
     }
 
     public function accept(int $id)
@@ -110,12 +138,20 @@ class PaysafecardService
             /** @var User */
             $user = $this->user->find($paysafecard->getUserId());
             $user->addFund($paysafecard->giveback($this->getTax()));
+            $this->user->updateWallet($user);
             $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
             $paysafecard->setVerifiedAt('now');
             $this->paysafecard->saveAdmin($paysafecard);
+            if ($paysafecard->getTransactionId()) {
+                $transaction = $this->service->findTransaction($paysafecard->getTransactionId());
+                $item = $transaction->getItems()[0];
+                $item->delivre();
+                $transaction->setState(Transaction::COMPLETED);
+                $this->service->changeState($transaction);
+            }
         } catch (NoRecordException $e) {
         }
-        return $this->redirectToRoute('admin.paysafecard.index');
+        return $this->redirectToRoute('paysafecard.admin.index');
     }
 
     public function refuse(int $id)
@@ -128,8 +164,19 @@ class PaysafecardService
         $this->success($this->trans("paysafecard.refuse"));
         $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
         $paysafecard->setVerifiedAt('now');
+
+        if ($paysafecard->getTransactionId()) {
+
+            $transaction = $this->service->findTransaction($paysafecard->getTransactionId());
+            $transaction->cancel();
+
+            $item = $transaction->getItems()[0];
+            $item->cancel();
+            $transaction->setState(Transaction::REFUSED);
+            $this->service->changeState($transaction);
+        }
         $this->paysafecard->saveAdmin($paysafecard);
-        return $this->redirectToRoute('admin.paysafecard.index');
+        return $this->redirectToRoute('paysafecard.admin.index');
     }
 
     public function cancel(int $id)
@@ -140,20 +187,27 @@ class PaysafecardService
         if ($paysafecard->getUserId() != $this->getUserId() && $this->adminAuth->getUser() === null) {
             return new Response(404);
         }
+        if ($paysafecard->getTransactionId()) {
+            $transaction = $this->service->findTransaction($paysafecard->getTransactionId());
+
+            $item = $transaction->getItems()[0];
+            $item->cancel();
+            $transaction->setState(Transaction::CANCELLED);
+            $this->service->changeState($transaction);
+        }
         $this->setState($paysafecard);
         $this->success($this->trans("paysafecard.cancel"));
         if ($this->adminAuth->getUser() === null) {
-            return $this->redirectToRoute('paysafecard.index');
+            return $this->redirectToRoute('paysafecard.admin.index');
         }
-        return $this->redirectToRoute('admin.paysafecard.index');
+        return $this->redirectToRoute('paysafecard.admin.index');
     }
 
     public function validate(array $params)
     {
         $validator = (new Validator($params))
             ->notEmpty('pin', 'value')
-            ->length('pin', 16, 16)
-            ->numeric('pin')
+            ->length('pin', 19, 19)
             ->unique('pin', $this->paysafecard);
         if ($validator->isValid() == false) {
             $this->session->set(self::SESSION_KEY, $validator->getErrors());

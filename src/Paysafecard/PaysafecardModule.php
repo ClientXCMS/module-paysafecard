@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Paysafecard;
 
 use App\Paysafecard\Actions\Admin\PaysafecardActiveIndexAction;
@@ -18,8 +19,8 @@ class PaysafecardModule extends Module
     const MIGRATIONS = __DIR__ . "/db/migrations";
     const DEFINITIONS = __DIR__ . '/config.php';
     const TRANSLATIONS = [
-        "fr_FR" => __DIR__ ."/trans/fr.php",
-        "en_GB" => __DIR__ ."/trans/en.php",
+        "fr_FR" => __DIR__ . "/trans/fr.php",
+        "en_GB" => __DIR__ . "/trans/en.php",
     ];
 
     public function __construct(ContainerInterface $container, ThemeInterface $theme, RendererInterface $renderer, Router $router)

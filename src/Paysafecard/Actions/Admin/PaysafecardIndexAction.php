@@ -40,9 +40,9 @@ class PaysafecardIndexAction extends Action
             $paysafecards = $this->table->makeQueryForAdmin($params)->paginate(12, $request->getQueryParams()['p'] ?? 1);
             return $this->render("@paysafecard_admin/index", compact('paysafecards'));
         } elseif ($request->getMethod() === 'DELETE') {
-            $this->paysafecards->refuse($request->getAttribute('id'));
+            return $this->paysafecards->refuse($request->getAttribute('id'));
         } elseif ($request->getMethod() === 'POST') {
-            $this->paysafecards->accept($request->getAttribute('id'));
+            return $this->paysafecards->accept($request->getAttribute('id'));
         }
     }
 }

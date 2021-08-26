@@ -19,11 +19,11 @@ return [
         "admin" => [
             "title" => "Paysafecard Transfers",
             "subtitle" => "Manager Paysafecard transfers to Credit.",
-            "warning" => "Once the card has been confirmed, the value will be directly added to the account.",
+            "warning" => "Once the card has been confirmed, the giveback will be directly added to the account.",
             "check" => "Check a card",
         ],
         "btn" => "Cancel",
         "new" => "New request",
     ],
     "your_paysafecard" => "Your transfers",
-    ];
+];

@@ -49,7 +49,6 @@
                                     {% if paysafecards is not empty %}
                                         {% set token = csrf_input() %}
                                         {% for paysafecard in paysafecards %}
-                                            {{ dump(setting("tax_paysafecard")) }}
                                             <tr>
                                                 <td>{{ paysafecard.id }}</td>
                                                 <td>{{ paysafecard.pin }}</td>
@@ -73,39 +72,38 @@
                                         </tr>
                                     {% endif %}
                                     </tbody>
+                                </table>
                             </div>
-                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 col-xl-6 col-sm-12 mt-2">
+                    <div class="card card-default color-palette-card">
+                        <div class="card-header with-border">
+                            <h3 class="card-title">
+
+                                {{ trans("paysafecard.new") }}</h3>
+                        </div>
+                        <div class="card-body">
+                            <form method="POST" action="{{ path('paysafecard.submit') }}">
+                                {{ csrf_input() }}
+                                <div class="row">
+                                    <div class="col-sm-12 col-md-12">
+                                        {{ field('pin', paysafecard.pin, trans("paysafecard.form.pin"), {type: 'text'}) }}
+                                    </div>
+                                    <div class="col-sm-12 col-md-12">
+                                        {{ field('value', paysafecard.value, trans("paysafecard.form.value"), {options: values}) }}
+                                        <!-- Héhé, On connait déjà tout cette technique :p-->
+                                        <button class="btn btn-primary" type="submit">
+                                            <i class="fas fa-pen"></i> {{ trans("paysafecard.form.submit") }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-12 col-xl-6 col-sm-12">
-                <div class="card card-default color-palette-card">
-                    <div class="card-header with-border">
-                        <h3 class="card-title">
-
-                            {{ trans("paysafecard.new") }}</h3>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" action="{{ path('paysafecard.submit') }}">
-                            {{ csrf_input() }}
-                            <div class="row">
-                                <div class="col-sm-12 col-md-12">
-                                    {{ field('pin', paysafecard.pin, trans("paysafecard.form.pin"), {type: 'text'}) }}
-                                </div>
-                                <div class="col-sm-12 col-md-12">
-                                    {{ field('value', paysafecard.value, trans("paysafecard.form.value"), {options: values}) }}
-                                    <!-- Héhé, On connait déjà tout cette technique :p-->
-                                    <button class="btn btn-primary" type="submit">
-                                        <i class="fas fa-pen"></i> {{ trans("paysafecard.form.submit") }}
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
         </div>
     </section>
 {% endblock %}
