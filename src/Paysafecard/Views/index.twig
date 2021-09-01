@@ -4,79 +4,91 @@
 {% block pagesubtitle  trans("paysafecard.admin.subtitle") %}
 
 {% block body %}
-    <div class="alert alert-info" role="alert">
-        <i class="fas fa-bullhorn"></i>{{ trans("paysafecard.admin.warning") }}
+
+    <div class="col-12">
+        <div class="callout callout-info alert-dismissible">
+            {{ trans("paysafecard.admin.warning") | raw }}
+        </div>
     </div>
     <div class="card">
-        <div class="card-body">
-            <div class="d-flex bd-highlight">
-                <div class="ml-auto p-2 bd-highlight">
-                    <a href="https://www.paysafecard.com/fr-fr/demander-le-solde/" class="btn btn-primary"
-                       title="{{ trans("paysafecard.admin.check") }}">{{ trans("paysafecard.admin.check") }}</a>
-                </div>
+    <div class="card-body">
+        <div class="d-flex bd-highlight">
+            <div class="ml-auto p-2 bd-highlight">
+                <a href="https://www.paysafecard.com/fr/" class="btn btn-primary"
+                   title="{{ trans("paysafecard.admin.check") }}">{{ trans("paysafecard.admin.check") }}</a>
             </div>
-            <div class="table-responsive">
+        </div>
+        <div class="table-responsive">
 
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>{{ trans("paysafecard.form.pin") }}</th>
-                        <th>{{ trans("user") }}</th>
-                        <th>{{ trans("paysafecard.form.value") }}</th>
-                        <th>{{ trans("paysafecard.form.giveback") }}</th>
-                        <th>{{ trans("state2") }}</th>
-                        <th>{{ trans("date") }}</th>
-                        <th>{{ trans("action") }}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% if paysafecards is not empty %}
-                        {% set token = csrf_input() %}
-                        {% for paysafecard in paysafecards %}
-                            <tr>
-                                <td>{{ paysafecard.id }}</td>
-                                <td>{{ paysafecard.pin }}</td>
-                                <td>
-                                    <a href="{{ path('account.admin.edit', {id: paysafecard.userId}) }}">{{ paysafecard.username }}</a>
-                                </td>
-                                <td>{{ paysafecard.value }}{{ config('app.currency') }}</td>
-                                <td>{{ paysafecard.giveback(setting("tax_paysafecardmanual")) }}{{ config('app.currency') }}</td>
-                                <td>{{ paysafecard.state | paysafecard_status | raw }}</td>
-                                <td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
-                                <td>
-                                    <div class="row">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>{{ trans("paysafecard.form.pin") }}</th>
+                    <th>{{ trans("user") }}</th>
+                    <th>{{ trans("paysafecard.form.value") }}</th>
+                    <th>{{ trans("paysafecard.form.giveback") }}</th>
+                    <th>{{ trans("state2") }}</th>
+                    <th>{{ trans("date") }}</th>
+                    <th>{{ trans("action") }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if paysafecards is not empty %}
+                    {% set token = csrf_input() %}
+                    {% for paysafecard in paysafecards %}
+                        <tr>
+                            <td>{{ paysafecard.id }}</td>
+                            <td>{{ paysafecard.pin }}</td>
+                            <td>
+                                <a href="{{ path('account.admin.edit', {id: paysafecard.userId}) }}">{{ paysafecard.username }}</a>
+                            </td>
+
+                            {% if paysafecard.state == 'Pending' %}
+                                <td>{{ field("value_paysafecard_" ~ paysafecard.id, paysafecard.value,null, {options: values, label: false}, {'data-id': paysafecard.id}) }}</td>
+                            {% else %}
+                                <td>{{ paysafecard.value }} {{ config('app.currency') }}</td>
+                            {% endif %}
+                            <td>{{ paysafecard.giveback(setting("tax_paysafecardmanual")) }} {{ config('app.currency') }}</td>
+                            <td>{{ paysafecard.state | paysafecard_status | raw }}</td>
+                            <td>{{ paysafecard.createdAt.format('d/y/Y H:i') }}</td>
+                            <td>
+                                <div class="row">
+
+                                    {% if paysafecard.state == 'Pending' %}
                                         <form method="POST"
                                               action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
                                             <input value="DELETE" name="_method" type="hidden">
                                             {{ token | raw }}
-                                            <button class="btn btn-info mr-2"><i class="fas fa-times"></i></button>
+                                            <button class="btn btn-info mr-2" title="Cancel code"><i
+                                                        class="fas fa-times"></i></button>
                                         </form>
                                         <form method="POST"
                                               action="{{ path('paysafecard.admin.accept', {id: paysafecard.id}) }}">
                                             {{ token | raw }}
-                                            <button class="btn btn-success mr-2">
+                                            <button class="btn btn-success mr-2" title="Accept code">
                                                 <i class="fas fa-money-bill-wave"></i>
                                             </button>
                                         </form>
                                         <form method="POST"
                                               action="{{ path('paysafecard.admin.refuse', {id: paysafecard.id}) }}">
                                             {{ token | raw }}
-                                            <input type="hidden" name="_method" value="DELETE">
+                                            <input type="hidden" name="_method" value="DELETE" title="Refuse code">
                                             <button class="btn btn-danger">
                                                 <i class="fas fa-times"></i>
                                             </button>
                                         </form>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="8">{{ trans("no_record") }}</td>
+                                    {% endif %}
+                                </div>
+                            </td>
                         </tr>
-                    {% endif %}
-                    </tbody>
-            </div>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8">{{ trans("no_record") }}</td>
+                    </tr>
+                {% endif %}
+                </tbody>
             </table>
         </div>
         <div class="d-flex justify-content-center mt-4">
@@ -89,3 +101,18 @@
         </div>
     </div>
     </div>{% endblock %}
+                        {% block scripts %}
+                            <script>
+                                Array.from(document.getElementsByTagName("select")).map((el) => {
+                                        el.addEventListener("change", (e) => {
+                                            const urlParams = new URLSearchParams(window.location.search);
+                                            urlParams.set('pId', e.target.dataset.id);
+
+                                            urlParams.set('new', e.target.options[e.target.selectedIndex].value);
+                                            window.location.search = urlParams;
+
+                                        })
+                                    }
+                                )
+                            </script>
+                        {% endblock %}

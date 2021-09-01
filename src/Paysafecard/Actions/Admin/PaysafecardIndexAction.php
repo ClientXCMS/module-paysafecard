@@ -20,6 +20,7 @@ class PaysafecardIndexAction extends Action
         RendererInterface $renderer,
         Router $router,
         PaysafecardService $paysafecards
+
     )
     {
         $this->table = $table;
@@ -32,13 +33,13 @@ class PaysafecardIndexAction extends Action
     {
         if ($request->getMethod() === 'GET') {
             $this->renderer->addGlobal('moduleName', 'Paysafecard');
+            $values = PaysafecardService::VALUES;
             $params = $request->getQueryParams();
-            $query = null;
-            if (array_key_exists("s", $params)) {
-                $query = $params['s'];
+            if (array_key_exists('pId', $params) && array_key_exists('new', $params) && is_int((int)$params['new']) && is_int((int)$params['pId'])) {
+                $this->paysafecards->change($params['pId'], $params['new']);
             }
-            $paysafecards = $this->table->makeQueryForAdmin($params)->paginate(12, $request->getQueryParams()['p'] ?? 1);
-            return $this->render("@paysafecard_admin/index", compact('paysafecards'));
+            $paysafecards = $this->table->makeQueryForAdmin([])->paginate(12, $request->getQueryParams()['p'] ?? 1);
+            return $this->render("@paysafecard_admin/index", compact('paysafecards', 'values'));
         } elseif ($request->getMethod() === 'DELETE') {
             return $this->paysafecards->refuse($request->getAttribute('id'));
         } elseif ($request->getMethod() === 'POST') {

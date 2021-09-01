@@ -6,14 +6,14 @@
     <script>
 
         document.getElementById("pin").addEventListener("input", function (event) {
+
             const {value: t, selectionStart: e} = event.target;
-            var n = countSubStr(t.slice(0, e), /\D/g)
+            var n = e - countSubStr(t.slice(0, e), /\D/g);
             const a = t.replace(/\D/g, "");
             var i = a.replace(/(\d{0,4})(\d{0,4})(\d{0,4})(\d{0,4}).*/, "$1 $2 $3 $4").trim()
                 , n = n + Math.floor((2 + n) / 4);
-            event.target.value = i
-            //event.target.setSelectionRange(n, n)
-
+            event.target.value = i,
+                event.target.setSelectionRange(n, n)
         })
         const countSubStr = function (t, e) {
             return t.split(e).length - 1
@@ -57,12 +57,16 @@
                                                 <td>{{ paysafecard.state | paysafecard_status | raw }}</td>
                                                 <td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
                                                 <td>
-                                                    <form method="POST"
-                                                          action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
-                                                        <input value="DELETE" name="_method" type="hidden">
-                                                        {{ token | raw }}
-                                                        <button class="btn btn-info">{{ trans("paysafecard.btn") }}</button>
-                                                    </form>
+                                                    {% if paysafecard.state == 'Pending' %}
+
+                                                        <form method="POST"
+                                                              action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
+                                                            <input value="DELETE" name="_method" type="hidden">
+                                                            {{ token | raw }}
+                                                            <button class="btn btn-info">{{ trans("paysafecard.btn") }}</button>
+                                                        </form>
+                                                    {% endif %}
+
                                                 </td>
                                             </tr>
                                         {% endfor %}

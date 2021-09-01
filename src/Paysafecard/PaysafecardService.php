@@ -183,6 +183,13 @@ class PaysafecardService
     {
         /** @var Paysafecard */
         $paysafecard = $this->paysafecard->find($id);
+        if ($paysafecard->getState() != Paysafecard::PENDING) {
+
+            if ($this->adminAuth->getUser() === null) {
+                return $this->redirectToRoute('paysafecard.admin.index');
+            }
+            return $this->redirectToRoute('paysafecard.admin.index');
+        }
         $paysafecard->setState(Paysafecard::CANCELLED);
         if ($paysafecard->getUserId() != $this->getUserId() && $this->adminAuth->getUser() === null) {
             return new Response(404);
@@ -196,6 +203,9 @@ class PaysafecardService
             $this->service->changeState($transaction);
         }
         $this->setState($paysafecard);
+        $paysafecard->setVerifiedAt('now');
+        $this->paysafecard->saveAdmin($paysafecard);
+
         $this->success($this->trans("paysafecard.cancel"));
         if ($this->adminAuth->getUser() === null) {
             return $this->redirectToRoute('paysafecard.admin.index');
@@ -218,5 +228,11 @@ class PaysafecardService
     private function getTax(): int
     {
         return $this->tax;
+    }
+
+    public function change(int $pId, int $new)
+    {
+        $this->paysafecard->update($pId, ['value' => $new]);
+        $this->success($this->trans("paysafecard.change"));
     }
 }

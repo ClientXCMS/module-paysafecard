@@ -1,52 +1,52 @@
 <div class="col-md-12 col-xl-12 col-sm-12">
-	<div class="card">
-		<div class="card-body">
-			<h4>
-				<i class="fas fa-ticket-alt mr-2"></i>
-				Paysafecard
-			</h4>
-			<div class="table-responsive">
+    <div class="card">
+        <div class="card-body">
+            <h4>
+                <i class="fas fa-ticket-alt mr-2"></i>
+                Paysafecard
+            </h4>
+            <div class="table-responsive">
 
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th>#</th>
-							<th>{{ trans("paysafecard.form.pin")}}</th>
-							<th>{{ trans("paysafecard.form.value")}}</th>
-							<th>{{ trans("paysafecard.form.giveback")}}</th>
-							<th>{{ trans("state2")}}</th>
-							<th>{{ trans("date")}}</th>
-							<th>{{ trans("action")}}</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% if paysafecards is not empty %}
-							{% set token = csrf_input() %}
-							{% for paysafecard in paysafecards %}
-								<tr>
-									<td>{{ paysafecard.id }}</td>
-									<td>{{ paysafecard.pin}}</td>
-									<td>{{ paysafecard.value }}{{ config('app.currency')}}</td>
-									<td>{{ paysafecard.giveback }}{{ config('app.currency')}}</td>
-									<td>{{ paysafecard.state | paysafecard_status | raw}}</td>
-									<td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
-									<td>
-										<form method="POST" action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
-											<input value="DELETE" name="_method" type="hidden">
-											{{ token | raw}}
-											<button class="btn btn-info">{{ trans("paysafecard.btn") }}</button>
-										</form>
-									</td>
-								</tr>
-							{% endfor %}
-						{% else %}
-							<tr>
-								<td colspan="7">{{ trans("no_record")}}</td>
-							</tr>
-						{% endif %}
-					</tbody>
-				</div>
-			</table>
-		</div>
-	</div>
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>{{ trans("paysafecard.form.pin") }}</th>
+                        <th>{{ trans("paysafecard.form.value") }}</th>
+                        <th>{{ trans("paysafecard.form.giveback") }}</th>
+                        <th>{{ trans("state2") }}</th>
+                        <th>{{ trans("date") }}</th>
+                        <th>{{ trans("action") }}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% if paysafecards is not empty %}
+                        {% set token = csrf_input() %}
+                        {% for paysafecard in paysafecards %}
+                            <tr>
+                                <td>{{ paysafecard.id }}</td>
+                                <td>{{ paysafecard.pin }}</td>
+                                <td>{{ paysafecard.value }}{{ config('app.currency') }}</td>
+                                <td>{{ paysafecard.giveback }}{{ config('app.currency') }}</td>
+                                <td>{{ paysafecard.state | paysafecard_status | raw }}</td>
+                                <td>{{ paysafecard.createdAt.format('d/y/Y H:i') }}</td>
+                                <td>
+                                    <form method="POST" action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
+                                        <input value="DELETE" name="_method" type="hidden">
+                                        {{ token | raw }}
+                                        <button class="btn btn-info">{{ trans("paysafecard.btn") }}</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7">{{ trans("no_record") }}</td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+            </div>
+            </table>
+        </div>
+    </div>
 </div></div>
