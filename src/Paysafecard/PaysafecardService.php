@@ -104,23 +104,6 @@ class PaysafecardService
         $paysafecard->tax = $this->tax;
         $id = $this->paysafecard->create($paysafecard);
         $paysafecard->setId($id);
-        $transaction = new Transaction();
-        $item = new TransactionItem();
-        $item->setOrderable($paysafecard);
-        $item->typeId = $id;
-        $item->setName($paysafecard->getName());
-        $item->setPrice($paysafecard->giveback($this->tax));
-        $item->setVat($this->tax);
-        $transaction->setCurrency("EUR")
-            ->setUser($this->getUser())
-            ->setPrice($paysafecard->giveback($this->tax))
-            ->setUserId($this->getUserId())
-            ->setTransactionId($paysafecard->getPin())
-            ->setPaymentType("paysafecardmanual")
-            ->setItems([$item]);
-        $transaction = $this->service->getTable()->insertTransaction($transaction);
-        $paysafecard->setTransactionId($transaction);
-        $this->paysafecard->update($paysafecard->getId(), ['transaction_id' => $transaction]);
         $this->trigger(new PaysafecardStoredEvent($paysafecard));
         $this->success($this->trans("paysafecard.success"), ['%wallet%' => $paysafecard->giveback($this->getTax())]);
         return $this->redirectToRoute('paysafecard.index');
@@ -142,13 +125,6 @@ class PaysafecardService
             $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
             $paysafecard->setVerifiedAt('now');
             $this->paysafecard->saveAdmin($paysafecard);
-            if ($paysafecard->getTransactionId()) {
-                $transaction = $this->service->findTransaction($paysafecard->getTransactionId());
-                $item = $transaction->getItems()[0];
-                $item->delivre();
-                $transaction->setState(Transaction::COMPLETED);
-                $this->service->changeState($transaction);
-            }
         } catch (NoRecordException $e) {
         }
         return $this->redirectToRoute('paysafecard.admin.index');
@@ -164,17 +140,6 @@ class PaysafecardService
         $this->success($this->trans("paysafecard.refuse"));
         $paysafecard->setAdminId($this->adminAuth->getUser()->getId());
         $paysafecard->setVerifiedAt('now');
-
-        if ($paysafecard->getTransactionId()) {
-
-            $transaction = $this->service->findTransaction($paysafecard->getTransactionId());
-            $transaction->cancel();
-
-            $item = $transaction->getItems()[0];
-            $item->cancel();
-            $transaction->setState(Transaction::REFUSED);
-            $this->service->changeState($transaction);
-        }
         $this->paysafecard->saveAdmin($paysafecard);
         return $this->redirectToRoute('paysafecard.admin.index');
     }
@@ -193,14 +158,6 @@ class PaysafecardService
         $paysafecard->setState(Paysafecard::CANCELLED);
         if ($paysafecard->getUserId() != $this->getUserId() && $this->adminAuth->getUser() === null) {
             return new Response(404);
-        }
-        if ($paysafecard->getTransactionId()) {
-            $transaction = $this->service->findTransaction($paysafecard->getTransactionId());
-
-            $item = $transaction->getItems()[0];
-            $item->cancel();
-            $transaction->setState(Transaction::CANCELLED);
-            $this->service->changeState($transaction);
         }
         $this->setState($paysafecard);
         $paysafecard->setVerifiedAt('now');
