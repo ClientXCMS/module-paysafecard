@@ -8,7 +8,7 @@ class CreatePaysafecardTable extends AbstractMigration
     public function change()
     {
         $this->table('paysafecards')
-            ->addColumn('pin', 'string', ['limit' => 16])
+            ->addColumn('pin', 'string', ['limit' => 20])
             ->addColumn('value', 'integer')
             ->addColumn('user_id', 'integer')
             ->addColumn('state', 'string', ['default' => Paysafecard::PENDING])

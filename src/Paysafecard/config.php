@@ -11,5 +11,7 @@ return [
     'navigation.main.items' => add([new DefaultMainItem([DefaultMainItem::makeItem('Paysafecard', 'paysafecard.index', 'fa fa-credit-card')], 80)]),
     'twig.extensions'       => add([get(PaysafecardTwigExtension::class)]),
     'admin.customer.items'  => add([get(PaysafecardCustomerItem::class)]),
-    'payments.type'         => add([get(PaysafecardPaymentType::class)])
+    'payments.type'         => add([get(PaysafecardPaymentType::class)]),
+    'payment.boards'        => add(get(\App\Paysafecard\PaysafecardPaymentBoard::class)),
+    'admin.dashboard.items' => add(get(\App\Paysafecard\Navigations\Items\PaysafecardWidget::class)),
 ];
