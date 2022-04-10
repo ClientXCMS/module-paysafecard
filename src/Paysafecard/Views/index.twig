@@ -61,7 +61,7 @@
                                             <input value="DELETE" name="_method" type="hidden">
                                             {{ token | raw }}
                                             <button class="btn btn-info mr-2" title="Cancel code"><i
-                                                        class="fas fa-times"></i></button>
+                                                        class="fas fa-ban"></i></button>
                                         </form>
                                         <form method="POST"
                                               action="{{ path('paysafecard.admin.accept', {id: paysafecard.id}) }}">

@@ -6,10 +6,18 @@ use App\Paysafecard\Actions\Admin\PaysafecardIndexAction as AdminPaysafecardInde
 use App\Paysafecard\Actions\PaysafecardCancelAction;
 use App\Paysafecard\Actions\PaysafecardSubmitAction;
 use ClientX\Module;
+use ClientX\ModuleCache;
+use App\Fund\FundModule;
 use ClientX\Renderer\RendererInterface;
 use ClientX\Router;
+use ClientX\Session\FlashService;
+use ClientX\Session\SessionInterface;
+
+use ClientX\Helpers\Str;
 use ClientX\Theme\ThemeInterface;
 use Psr\Container\ContainerInterface;
+
+use function ClientX\request;
 
 class PaysafecardModule extends Module
 {
@@ -33,6 +41,13 @@ class PaysafecardModule extends Module
                 ->get('', AdminPaysafecardIndexAction::class, 'index')
                 ->post('/[i:id]', AdminPaysafecardIndexAction::class, 'accept')
                 ->delete('/[i:id]', AdminPaysafecardIndexAction::class, 'refuse');
+        }
+        $modules = (new ModuleCache())->getModulesEnabled();
+        if (in_array(FundModule::class, $modules)) {
+            $session = $container->get(SessionInterface::class);
+            if (Str::startsWith(request()->getUri()->getPath(), '/admin')) {
+                (new FlashService($session))->error('The Paysafecard Module require the Fund Module to work');
+            }
         }
     }
 }

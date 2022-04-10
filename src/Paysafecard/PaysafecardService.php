@@ -13,9 +13,6 @@ use App\Paysafecard\Events\PaysafecardCancelledEvent;
 use App\Paysafecard\Events\PaysafecardRefusedEvent;
 use App\Paysafecard\Events\PaysafecardStoredEvent;
 use App\Paysafecard\Events\PaysafecardUpdatedEvent;
-use App\Shop\Entity\Transaction;
-use App\Shop\Entity\TransactionItem;
-use App\Shop\Event\Transactions\TransactionItemStateChanged;
 use App\Shop\Services\TransactionService;
 use ClientX\Actions\Traits\AuthTrait;
 use ClientX\Actions\Traits\EventTrait;
@@ -30,6 +27,7 @@ use ClientX\Session\FlashService;
 use ClientX\Session\SessionInterface;
 use ClientX\Translator\Translater;
 use ClientX\Validator;
+use ClientX\Helpers\Str;
 use GuzzleHttp\Psr7\Response;
 use function ClientX\request;
 
@@ -150,7 +148,7 @@ class PaysafecardService
         $paysafecard = $this->paysafecard->find($id);
         if ($paysafecard->getState() != Paysafecard::PENDING) {
 
-            if ($this->adminAuth->getUser() === null) {
+            if (Str::startsWith(request()->getUri()->getPath(),'/admin')) {
                 return $this->redirectToRoute('paysafecard.admin.index');
             }
             return $this->redirectToRoute('paysafecard.admin.index');
@@ -164,7 +162,7 @@ class PaysafecardService
         $this->paysafecard->saveAdmin($paysafecard);
 
         $this->success($this->trans("paysafecard.cancel"));
-        if ($this->adminAuth->getUser() === null) {
+        if (Str::startsWith(request()->getUri()->getPath(),'/admin')) {
             return $this->redirectToRoute('paysafecard.admin.index');
         }
         return $this->redirectToRoute('paysafecard.admin.index');
