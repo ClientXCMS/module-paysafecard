@@ -43,7 +43,7 @@ class PaysafecardModule extends Module
                 ->delete('/[i:id]', AdminPaysafecardIndexAction::class, 'refuse');
         }
         $modules = (new ModuleCache())->getModulesEnabled();
-        if (in_array(FundModule::class, $modules)) {
+        if (!in_array(FundModule::class, $modules)) {
             $session = $container->get(SessionInterface::class);
             if (Str::startsWith(request()->getUri()->getPath(), '/admin')) {
                 (new FlashService($session))->error('The Paysafecard Module require the Fund Module to work');
