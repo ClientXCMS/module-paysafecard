@@ -28,5 +28,5 @@ return [
         "btn" => "Cancel",
         "new" => "New request",
     ],
-    "your_paysafecard" => "Your transfers",
+    "your_paysafecard" => "Your Paysafecard transfers",
 ];

@@ -2,10 +2,8 @@
 
 namespace App\Paysafecard;
 
-use App\Paysafecard\Actions\Admin\PaysafecardActiveIndexAction;
 use App\Paysafecard\Actions\Admin\PaysafecardIndexAction as AdminPaysafecardIndexAction;
 use App\Paysafecard\Actions\PaysafecardCancelAction;
-use App\Paysafecard\Actions\PaysafecardIndexAction;
 use App\Paysafecard\Actions\PaysafecardSubmitAction;
 use ClientX\Module;
 use ClientX\Renderer\RendererInterface;
@@ -27,7 +25,6 @@ class PaysafecardModule extends Module
     {
         $renderer->addPath('paysafecard', $theme->getViewsPath() . '/Paysafecard');
         $router->group($container->get('clientarea.prefix') . '/paysafecard', 'paysafecard')
-            ->get('', PaysafecardIndexAction::class, 'index')
             ->delete('/[i:id]/cancel', PaysafecardCancelAction::class, 'cancel')
             ->post('/submit', PaysafecardSubmitAction::class, 'submit');
         if ($container->has('admin.prefix')) {

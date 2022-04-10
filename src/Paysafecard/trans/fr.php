@@ -27,5 +27,5 @@ return [
         "btn" => "Annuler",
         "new" => "Nouvelle demande",
     ],
-    "your_paysafecard" => "Vos transferts",
+    "your_paysafecard" => "Vos transferts Paysafecard",
 ];

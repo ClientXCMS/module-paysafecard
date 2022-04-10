@@ -19,11 +19,11 @@ class PaysafecardSubmitAction extends Action
     }
     public function __invoke(ServerRequestInterface $request)
     {
-            $params = $request->getParsedBody();
-            $validator = $this->paysafecard->validate($params);
-            if ($validator->isValid()) {
-                return $this->paysafecard->save($params);
-            }
-        return $this->redirectToRoute('paysafecard.index');
+        $params = $request->getParsedBody();
+        $validator = $this->paysafecard->validate($params);
+        if ($validator->isValid()) {
+            return $this->paysafecard->save($params);
+        }
+        return $this->redirectToRoute('fund.index');
     }
 }

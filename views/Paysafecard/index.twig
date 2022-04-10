@@ -1,113 +1,76 @@
-{% extends "layout.twig" %}
+<div class="card card-body">
+	<div class="row">
+		<div class="col-md-12 col-xl-9 col-sm-12">
 
-{% block title trans("your_paysafecard") %}
+			<h3 class="mt-4 pb-2 text-primary fw-bold">{{ trans("your_paysafecard") }}</h3>
+			<div class="table-responsive">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>{{ trans("paysafecard.form.pin") }}</th>
+							<th>{{ trans("paysafecard.form.value") }}</th>
+							<th>{{ trans("paysafecard.form.giveback") }}</th>
+							<th>{{ trans("state2") }}</th>
+							<th>{{ trans("date") }}</th>
+							<th>{{ trans("action") }}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% if paysafecards is not empty %}
+							{% set token = csrf_input() %}
+							{% for paysafecard in paysafecards %}
+								<tr>
+									<td>{{ paysafecard.id }}</td>
+									<td>{{ paysafecard.pin }}</td>
+									<td>{{ paysafecard.value }}{{ config('app.currency') }}</td>
+									<td>{{ paysafecard.giveback(setting("tax_paysafecardmanual")) }}{{ config('app.currency') }}</td>
+									<td>{{ paysafecard.state | paysafecard_status | raw }}</td>
+									<td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
+									<td>
+										{% if paysafecard.state == 'Pending' %}
 
-{% block scripts %}
-    <script>
+											<form method="POST" action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
+												<input value="DELETE" name="_method" type="hidden">
+												{{ token | raw }}
+												<button class="btn btn-info">{{ trans("paysafecard.btn") }}</button>
+											</form>
+										{% endif %}
 
-        document.getElementById("pin").addEventListener("input", function (event) {
+									</td>
+								</tr>
+							{% endfor %}
+						{% else %}
+							<tr>
+								<td colspan="7">{{ trans("no_record") }}</td>
+							</tr>
+						{% endif %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-md-12 col-xl-3 col-sm-12">
+			<div class="card card-body">
+				<h3 class="card-title">
 
-            const {value: t, selectionStart: e} = event.target;
-            var n = e - countSubStr(t.slice(0, e), /\D/g);
-            const a = t.replace(/\D/g, "");
-            var i = a.replace(/(\d{0,4})(\d{0,4})(\d{0,4})(\d{0,4}).*/, "$1 $2 $3 $4").trim()
-                , n = n + Math.floor((2 + n) / 4);
-            event.target.value = i,
-                event.target.setSelectionRange(n, n)
-        })
-        const countSubStr = function (t, e) {
-            return t.split(e).length - 1
-        }
-    </script>
-{% endblock %}
-{% block body %}
-    <section class="forms">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12 col-xl-12 col-sm-12">
-                    <div class="card">
-                        <div class="card-header with-border">
-                            <h3 class="card-title">
-                                {{ trans("your_paysafecard") }}
-                            </h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>{{ trans("paysafecard.form.pin") }}</th>
-                                        <th>{{ trans("paysafecard.form.value") }}</th>
-                                        <th>{{ trans("paysafecard.form.giveback") }}</th>
-                                        <th>{{ trans("state2") }}</th>
-                                        <th>{{ trans("date") }}</th>
-                                        <th>{{ trans("action") }}</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% if paysafecards is not empty %}
-                                        {% set token = csrf_input() %}
-                                        {% for paysafecard in paysafecards %}
-                                            <tr>
-                                                <td>{{ paysafecard.id }}</td>
-                                                <td>{{ paysafecard.pin }}</td>
-                                                <td>{{ paysafecard.value }}{{ config('app.currency') }}</td>
-                                                <td>{{ paysafecard.giveback(setting("tax_paysafecardmanual")) }}{{ config('app.currency') }}</td>
-                                                <td>{{ paysafecard.state | paysafecard_status | raw }}</td>
-                                                <td>{{ paysafecard.createdAt.format('d/y/Y') }}</td>
-                                                <td>
-                                                    {% if paysafecard.state == 'Pending' %}
-
-                                                        <form method="POST"
-                                                              action="{{ path('paysafecard.cancel', {id: paysafecard.id}) }}">
-                                                            <input value="DELETE" name="_method" type="hidden">
-                                                            {{ token | raw }}
-                                                            <button class="btn btn-info">{{ trans("paysafecard.btn") }}</button>
-                                                        </form>
-                                                    {% endif %}
-
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    {% else %}
-                                        <tr>
-                                            <td colspan="7">{{ trans("no_record") }}</td>
-                                        </tr>
-                                    {% endif %}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-12 col-xl-6 col-sm-12 mt-2">
-                    <div class="card card-default color-palette-card">
-                        <div class="card-header with-border">
-                            <h3 class="card-title">
-
-                                {{ trans("paysafecard.new") }}</h3>
-                        </div>
-                        <div class="card-body">
-                            <form method="POST" action="{{ path('paysafecard.submit') }}">
-                                {{ csrf_input() }}
-                                <div class="row">
-                                    <div class="col-sm-12 col-md-12">
-                                        {{ field('pin', paysafecard.pin, trans("paysafecard.form.pin"), {type: 'text'}) }}
-                                    </div>
-                                    <div class="col-sm-12 col-md-12">
-                                        {{ field('value', paysafecard.value, trans("paysafecard.form.value"), {options: values}) }}
-                                        <!-- Héhé, On connait déjà tout cette technique :p-->
-                                        <button class="btn btn-primary" type="submit">
-                                            <i class="fas fa-pen"></i> {{ trans("paysafecard.form.submit") }}
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-{% endblock %}
+					{{ trans("paysafecard.new") }}</h3>
+				<form method="POST" action="{{ path('paysafecard.submit') }}">
+					{{ csrf_input() }}
+					<div class="row">
+						<div class="col-sm-12 col-md-12">
+							{{ field('pin', paysafecard.pin, trans("paysafecard.form.pin"), {type: 'text'}) }}
+						</div>
+						<div class="col-sm-12 col-md-12">
+							{{ field('value', paysafecard.value, trans("paysafecard.form.value"), {options: values}) }}
+							<!-- Héhé, On connait déjà tout cette technique :p-->
+							<button class="btn btn-primary" type="submit">
+								<i class="fas fa-pen"></i>
+								{{ trans("paysafecard.form.submit") }}
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
