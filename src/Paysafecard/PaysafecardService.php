@@ -104,7 +104,7 @@ class PaysafecardService
         $paysafecard->setId($id);
         $this->trigger(new PaysafecardStoredEvent($paysafecard));
         $this->success($this->trans("paysafecard.success"), ['%wallet%' => $paysafecard->giveback($this->getTax())]);
-        return $this->redirectToRoute('paysafecard.index');
+        return $this->redirectToRoute('fund.index');
     }
 
     public function accept(int $id)
@@ -151,7 +151,7 @@ class PaysafecardService
             if (Str::startsWith(request()->getUri()->getPath(),'/admin')) {
                 return $this->redirectToRoute('paysafecard.admin.index');
             }
-            return $this->redirectToRoute('paysafecard.admin.index');
+            return $this->redirectToRoute('fund.index');
         }
         $paysafecard->setState(Paysafecard::CANCELLED);
         if ($paysafecard->getUserId() != $this->getUserId() && $this->adminAuth->getUser() === null) {
@@ -165,7 +165,7 @@ class PaysafecardService
         if (Str::startsWith(request()->getUri()->getPath(),'/admin')) {
             return $this->redirectToRoute('paysafecard.admin.index');
         }
-        return $this->redirectToRoute('paysafecard.admin.index');
+        return $this->redirectToRoute('fund.index');
     }
 
     public function validate(array $params)
