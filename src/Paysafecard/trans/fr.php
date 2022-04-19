@@ -2,7 +2,7 @@
 return [
     'paysafecard' => [
         'success' => "Transfert en cours de vérification pour recevoir les crédits.",
-        'cancel' => "Transfert de fond annulé.",
+        'cancel' => "Transfert de fonds annulé.",
         'accept' => "Transfert acceptée avec succès.",
         'refuse' => "Transfert refusée avec succès.",
         'change' => "Valeur de la carte modifiée.",
@@ -20,8 +20,8 @@ return [
         ],
         "admin" => [
             "title" => "Transfert Paysafecard",
-            "subtitle" => "Administrez les transfers Paysafecard vers Crédit.",
-            "warning" => "Une fois la confirmation de la carte la valeur sera directement ajouter au compte. <br/> Le premier bouton permet d'annuler le code, le second accepte et le troisième refuse le code.",
+            "subtitle" => "Administrez les transferts Paysafecard vers Crédit.",
+            "warning" => "Une fois la confirmation de la carte la valeur sera directement ajoutée au compte. <br/> Le premier bouton permet d'annuler le code, le second accepte et le troisième refuse le code.",
             "check" => "Vérifier une carte",
         ],
         "btn" => "Annuler",
