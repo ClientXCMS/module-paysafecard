@@ -72,7 +72,7 @@ class PaysafecardService
         $this->auth = $auth;
         $this->router = $router;
         $this->event = $event;
-        $this->tax = $table->findSetting("tax_paysafecardmanual", 0);
+        $this->tax = (int)$table->findSetting("tax_paysafecardmanual", 0);
         $this->table = $table;
         $this->service = $service;
     }
