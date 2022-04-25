@@ -106,7 +106,7 @@ class Paysafecard implements Orderable
 
     public function giveback($taxe)
     {
-        if (is_null($taxe)) {
+        if (empty($taxe) || $taxe == null) {
             return $this->value;
         }
         return $this->value - (($taxe * $this->value) / 100);
