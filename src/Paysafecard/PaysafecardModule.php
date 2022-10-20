@@ -27,6 +27,10 @@ class PaysafecardModule extends Module
     const TRANSLATIONS = [
         "fr_FR" => __DIR__ . "/trans/fr.php",
         "en_GB" => __DIR__ . "/trans/en.php",
+        "uk_UA" => __DIR__ . "/trans/ua.php",
+        "es_ES" => __DIR__ . "/trans/es.php",
+        "ja_JP" => __DIR__ . "/trans/ja.php",
+        "de_DE" => __DIR__ . "/trans/de.php"
     ];
 
     public function __construct(ContainerInterface $container, ThemeInterface $theme, RendererInterface $renderer, Router $router)
