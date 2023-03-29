@@ -51,7 +51,7 @@
                             {% endif %}
                             <td>{{ paysafecard.giveback(setting("tax_paysafecardmanual")) }} {{ config('app.currency') }}</td>
                             <td>{{ paysafecard.state | paysafecard_status | raw }}</td>
-                            <td>{{ paysafecard.createdAt.format('d/y/Y H:i') }}</td>
+                            <td>{{ paysafecard.createdAt.format('d/m/y H:i') }}</td>
                             <td>
                                 <div class="row">
 
