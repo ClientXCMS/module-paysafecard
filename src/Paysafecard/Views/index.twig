@@ -14,7 +14,7 @@
     <div class="card-body">
         <div class="d-flex bd-highlight">
             <div class="ml-auto p-2 bd-highlight">
-                <a href="https://www.paysafecard.com/fr/" class="btn btn-primary"
+                <a href="https://www.paysafecard.com/en/balance-check/" class="btn btn-primary"
                    title="{{ trans("paysafecard.admin.check") }}">{{ trans("paysafecard.admin.check") }}</a>
             </div>
         </div>
@@ -93,10 +93,10 @@
         </div>
         <div class="d-flex justify-content-center mt-4">
             {% if query is defined %}
-                {{ paginate(paysafecards, routePrefix ~'.index', {'query':query}) }}
+                {{ paginate(paysafecards, 'paysafecard.admin.index', {'query':query}) }}
             {% endif %}
             {% if query is not defined %}
-                {{ paginate(paysafecards, routePrefix ~'.index') }}
+                {{ paginate(paysafecards, 'paysafecard.admin.index') }}
             {% endif %}
         </div>
     </div>
